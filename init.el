@@ -382,7 +382,8 @@ Add this function to `org-mode-hook'."
 
 (use-package org-roam
   :config
-  (setq org-roam-directory (file-truename "~/Documents/org-roam"))
+  (setq org-roam-directory (file-truename "~/Documents/org-roam")
+		org-roam-completion-everywhere t)
   (org-roam-db-autosync-mode))
 
 (use-package ace-window
