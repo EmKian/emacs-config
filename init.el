@@ -12,10 +12,12 @@
 (global-visual-line-mode)
 (winner-mode)
 (add-hook 'prog-mode-hook (lambda ()(visual-line-mode -1)))
+
 (setq cursor-type 'bar)
 (set-fringe-style 8)
 (set-face-attribute 'default nil :font "Iosevka Term" :height 170)
 (set-face-attribute 'variable-pitch nil :font "Iosevka Aile" :height 170 :weight 'normal)
+
 (setq-default
  byte-compile-warnings nil
  fill-column 80
@@ -160,29 +162,6 @@ Thus, this function sort of acts like a toggle between these two positions."
 			"C-c l y" 'consult-yasnippet))
 
 (use-package company)
-  ;; :init
-  ;; (setq company-tooltip-limit 14
-  ;; 		company-minimum-prefix-length 2
-  ;; 		company-tooltip-align-annotations t
-  ;; 		company-frontends
-  ;; 		'(company-pseudo-tooltip-frontend
-  ;; 		  company-echo-metadata-frontend)
-  ;; 		company-global-modes
-  ;; 		'(not erc-mode
-  ;; 			  message-mode
-  ;; 			  eshell-mode
-  ;; 			  vterm-mode))
-  ;; :config
-  ;; (setq company-idle-delay 0.3
-  ;; 		company-tooltip-align-annotations t)
-  ;; (global-company-mode))
-
-;; (use-package company-posframe
-;;   :after company
-;;   :config
-;;   (setq company-posframe-show-metadata nil
-;; 		company-posframe-show-indicator nil)
-;;   (company-posframe-mode))
 
 (use-package corfu
   :config
@@ -236,6 +215,7 @@ Thus, this function sort of acts like a toggle between these two positions."
   :config
   (unless (display-graphic-p)
 	(corfu-doc-terminal-mode +1)))
+
 (use-package cape
   :straight t
   :general
@@ -250,48 +230,19 @@ Thus, this function sort of acts like a toggle between these two positions."
   (dolist (backend '(cape-symbol cape-keyword cape-file cape-dabbrev))
 	(add-to-list 'completion-at-point-functions backend)))
 
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-		lsp-completion-provider :none
-		lsp-diagnostics-provider :flycheck)
+(use-package eglot
   :preface
-  (defun lsp-capf ()
+  (defun eglot-capf ()
 	(setq-local completion-at-point-functions
 				(list (cape-super-capf
-					   #'lsp-completion-at-point
-					   (cape-company-to-capf #'company-yasnippet)))
-				completion-category-defaults nil))
+					   #'eglot-completion-at-point
+					   (cape-company-to-capf #'company-yasnippet)))))
   :hook
-  ((c-mode-hook c++-mode-hook rust-mode-hook) . lsp)
-  (lsp-completion-mode-hook . lsp-capf)
+  (eglot-managed-mode-hook . eglot-capf)
+  ;; (eglot-connected-hook . (lambda() (setq eldoc-documentation-strategy 'eldoc-documentation-compose)))
   :config
-  (setq lsp-idle-delay 0.1
-		lsp-headerline-breadcrumb-enable nil))
-
-
-(use-package lsp-ui
-  :hook (lsp-mode-hook . lsp-ui-mode)
-  :config
-  (setq lsp-ui-doc-max-height 8
-		lsp-ui-doc-max-width 72
-		lsp-ui-doc-delay 0.5
-		lsp-ui-doc-position 'at-point
-		lsp-ui-sideline-show-hover nil))
-
-;; (use-package eglot
-;;   :preface
-;;   (defun eglot-capf ()
-;; 	(setq-local completion-at-point-functions
-;; 				(list (cape-super-capf
-;; 					   #'eglot-completion-at-point
-;; 					   (cape-company-to-capf #'company-yasnippet)))))
-;;   :hook
-;;   (eglot-managed-mode-hook . eglot-capf)
-;;   ;; (eglot-connected-hook . (lambda() (setq eldoc-documentation-strategy 'eldoc-documentation-compose)))
-;;   :config
-;;   (setq completion-category-defaults nil)
-;;   (add-to-list 'completion-category-overrides '(eglot (styles orderless))))
+  (setq completion-category-defaults nil)
+  (add-to-list 'completion-category-overrides '(eglot (styles orderless))))
 
 (use-package ibuffer
   :general
@@ -597,13 +548,6 @@ Add this function to `org-mode-hook'."
 
 (use-package vundo)
 
-(use-package rust-mode)
-
-(use-package rustic
-  :after rust-mode
-  :config
-  (setq rustic-lsp-client 'lsp-mode))
-
 (use-package doom-modeline
   :config
   (setq doom-modeline-major-mode-icon t
@@ -632,6 +576,25 @@ Add this function to `org-mode-hook'."
   (popper-echo-mode))
 
 (use-package nov)
+
+(use-package sly
+  :commands (sly)
+  :config
+  (setq inferior-lisp-program "sbcl"
+		sly-complete-symbol-function 'sly-flex-completions))
+
+;; (use-package slime
+;;   :preface
+;;   (defun slime-capf ()
+;; 	(setq-local completion-at-point-functions
+;; 				(list (cape-super-capf
+;; 					   #'slime--completion-at-point
+;; 					   (cape-company-to-capf #'company-yasnippet)))))
+;;   :config
+;;   (setq inferior-lisp-program "sbcl")
+;;   :hook
+;;   (common-lisp-mode-hook . slime)
+;;   (slime-lisp-mode-hook . slime-capf))
 
 (use-package flyspell
   :config
